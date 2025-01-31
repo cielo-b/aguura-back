@@ -16,6 +16,7 @@ import { RateLimitMiddleware } from './common/middlewares/rate-limiter.middlewar
 import { UserModule } from './user/user.module';
 import { UtilsModule } from './utils/utils.module';
 import { HelperService } from './helpers/impls/helper.service';
+import { SuperadminModule } from './superadmin/superadmin.module';
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { HelperService } from './helpers/impls/helper.service';
     RedisModule,
     UserModule,
     UtilsModule,
+    SuperadminModule,
   ],
   controllers: [AppController],
   providers: [AppService, WinstonLoggerService, HelperService],
