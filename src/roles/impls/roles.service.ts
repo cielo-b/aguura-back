@@ -97,7 +97,7 @@ export class RolesService implements RolesAbstractService {
 
       this.logger.log('Permissions created for roles');
     } else {
-      this.logger.debug('Roles already exist, skipping creation.');
+      this.logger.log('Roles already exist, skipping creation.');
     }
   }
 

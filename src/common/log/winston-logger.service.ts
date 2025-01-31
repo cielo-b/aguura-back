@@ -8,10 +8,18 @@ export class WinstonLoggerService implements LoggerService {
 
   constructor() {
     const logLevel = process.env.NODE_ENV === 'production' ? 'error' : 'debug';
+
+    winston.addColors({
+      error: 'red',   // Red color for error logs
+      warn: 'yellow', // Yellow color for warnings
+      info: 'cyan',   // Cyan for info
+      debug: 'yellow', // Yellow for debug logs
+    });
+
     this.logger = winston.createLogger({
       level: logLevel,
       format: winston.format.combine(
-        winston.format.colorize(),
+        winston.format.colorize({ all: true }),
         winston.format.timestamp(),
         winston.format.printf(
           (info) => `${info.timestamp} [${info.level}]: ${info.message}`,

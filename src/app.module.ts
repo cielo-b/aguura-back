@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
@@ -12,6 +12,10 @@ import { Role } from './models/role.entity';
 import { Permission } from './models/permission.entity';
 import { WinstonLoggerService } from './common/log/winston-logger.service';
 import { RedisModule } from './redis/redis.module';
+import { RateLimitMiddleware } from './common/middlewares/rate-limiter.middleware';
+import { UserModule } from './user/user.module';
+import { UtilsModule } from './utils/utils.module';
+import { HelperService } from './helpers/impls/helper.service';
 
 @Module({
   imports: [
@@ -31,8 +35,15 @@ import { RedisModule } from './redis/redis.module';
     RolesModule,
     PermissionsModule,
     RedisModule,
+    UserModule,
+    UtilsModule,
   ],
   controllers: [AppController],
-  providers: [AppService, WinstonLoggerService],
+  providers: [AppService, WinstonLoggerService, HelperService],
 })
 export class AppModule {}
+// implements NestModule {
+//   configure(consumer: MiddlewareConsumer) {
+//       consumer.apply(RateLimitMiddleware).forRoutes("*")
+//   }
+// }

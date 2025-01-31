@@ -29,7 +29,7 @@ export class User {
   @Column({ type: 'varchar', length: 255, nullable: false })
   fullName: string;
 
-  @Column({ type: 'varchar', length: 10, nullable: false })
+  @Column({ type: 'varchar', length: 10, nullable: true })
   phoneCountryCode: string;
 
   @Column({ type: 'varchar', length: 15, nullable: false, unique: true })
@@ -67,7 +67,7 @@ export class User {
   @Column({ type: 'boolean', default: false })
   suspended: boolean;
 
-  @Column({ type: 'varchar', nullable: false })
+  @Column({ type: 'varchar', nullable: true })
   country: string;
 
   @Column({ type: 'varchar', default: 'RW' })
