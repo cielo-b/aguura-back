@@ -12,6 +12,7 @@ export class HelperService implements HelperAbstractService {
     user.email = dto.email;
     user.phoneNumber = dto.phone;
     user.password = dto.password;
+    user.otps = [];
 
     return user;
   }

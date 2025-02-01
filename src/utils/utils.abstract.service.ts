@@ -26,4 +26,7 @@ export abstract class UtilsAbstractService {
     password: string,
     dbPassword: string,
   ): Promise<boolean>;
+
+  abstract generateOtp(): Promise<string>;
+  abstract verifyOtp(otp: string, dbOtp: string): Promise<boolean>;
 }

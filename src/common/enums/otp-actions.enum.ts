@@ -1,0 +1,4 @@
+export enum EOtpAction {
+  REGISTRATION = 'REGISTRATION',
+  FORGOT_PASS = 'FORGOT_PASS',
+}

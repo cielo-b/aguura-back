@@ -14,6 +14,7 @@ import * as bcrypt from 'bcryptjs';
 import { IsEmail, MinLength, Matches, IsOptional } from 'class-validator';
 import { Stock } from './stock.entity';
 import { Role } from './role.entity';
+import { Otp } from './otp.entity';
 
 @Entity('users')
 export class User {
@@ -25,6 +26,9 @@ export class User {
 
   @ManyToOne(() => Role, (role) => role.users)
   role: Role;
+
+  @OneToMany(() => Otp, (otp) => otp.user)
+  otps: Otp[];
 
   @Column({ type: 'varchar', length: 255, nullable: false })
   fullName: string;

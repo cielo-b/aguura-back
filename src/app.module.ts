@@ -18,6 +18,8 @@ import { UtilsModule } from './utils/utils.module';
 import { HelperService } from './helpers/impls/helper.service';
 import { SuperadminModule } from './superadmin/superadmin.module';
 import { JwtModule } from './jwt/jwt.module';
+import { Otp } from './models/otp.entity';
+import { TransactionModule } from './transaction/transaction.module';
 
 @Module({
   imports: [
@@ -29,7 +31,7 @@ import { JwtModule } from './jwt/jwt.module';
       username: process.env.DB_USER,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
-      entities: [User, Stock, Role, Permission],
+      entities: [User, Stock, Role, Permission, Otp],
       synchronize: true,
       logging: true,
     }),
@@ -41,6 +43,7 @@ import { JwtModule } from './jwt/jwt.module';
     UtilsModule,
     SuperadminModule,
     JwtModule,
+    TransactionModule,
   ],
   controllers: [AppController],
   providers: [AppService, WinstonLoggerService, HelperService],

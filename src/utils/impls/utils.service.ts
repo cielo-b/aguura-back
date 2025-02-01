@@ -68,12 +68,12 @@ export class UtilsService implements UtilsAbstractService {
   };
 
   async findOneByEmailOrPhone(
-    email: string,
-    phone: string,
+    email?: string,
+    phone?: string,
   ): Promise<User | null> {
     return await this.userRepository.findOne({
       where: [{ email }, { phoneNumber: phone }],
-      relations: ['role']
+      relations: ['role', 'otps'],
     });
   }
 
@@ -82,5 +82,14 @@ export class UtilsService implements UtilsAbstractService {
     dbPassword: string,
   ): Promise<boolean> {
     return await bcrypt.compare(password, dbPassword);
+  }
+
+  async generateOtp(): Promise<string> {
+    const otp = Math.floor(1000 + Math.random() * 9000).toString();
+    return otp;
+  }
+
+  async verifyOtp(otp: string, dbOtp: string): Promise<boolean> {
+    return await bcrypt.compare(otp, dbOtp);
   }
 }
