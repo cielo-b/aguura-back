@@ -31,7 +31,7 @@ export class UserService implements UserAbstractService {
   ) {}
 
   registerUser = async (dto: RegisterUserDto): Promise<IResponse> => {
-    this.logger.log('User service initiated');
+    this.logger.log('Registration ==> UserService');
     // check the email
     if (!(await this.utilsService.isEmailUnique(dto.email)))
       throw new BadRequestException(`Email ${dto.email} already taken.`);
@@ -62,6 +62,9 @@ export class UserService implements UserAbstractService {
     }
 
     user.role = userRole;
+
+    // TODO: before saving the user, send the OTP on the email and phone number
+
     await this.userRepository.save(user);
 
     const populatedUser: User = await this.userRepository

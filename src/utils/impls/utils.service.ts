@@ -2,7 +2,8 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { UtilsAbstractService } from '../utils.abstract.service';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/models/user.entity';
-import { CreateDateColumn, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
+import * as bcrypt from 'bcrypt';
 import { ECreationAction } from 'src/common/enums/creation-actions.enum';
 
 @Injectable()
@@ -65,4 +66,21 @@ export class UtilsService implements UtilsAbstractService {
 
     return res;
   };
+
+  async findOneByEmailOrPhone(
+    email: string,
+    phone: string,
+  ): Promise<User | null> {
+    return await this.userRepository.findOne({
+      where: [{ email }, { phoneNumber: phone }],
+      relations: ['role']
+    });
+  }
+
+  async isPasswordValid(
+    password: string,
+    dbPassword: string,
+  ): Promise<boolean> {
+    return await bcrypt.compare(password, dbPassword);
+  }
 }

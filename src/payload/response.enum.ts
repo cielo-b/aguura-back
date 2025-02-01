@@ -1,5 +1,5 @@
 export default interface IResponse {
-  status: number;
+  status: number | string;
   message?: string;
   data?: {};
   success: boolean;

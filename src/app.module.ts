@@ -17,6 +17,7 @@ import { UserModule } from './user/user.module';
 import { UtilsModule } from './utils/utils.module';
 import { HelperService } from './helpers/impls/helper.service';
 import { SuperadminModule } from './superadmin/superadmin.module';
+import { JwtModule } from './jwt/jwt.module';
 
 @Module({
   imports: [
@@ -39,6 +40,7 @@ import { SuperadminModule } from './superadmin/superadmin.module';
     UserModule,
     UtilsModule,
     SuperadminModule,
+    JwtModule,
   ],
   controllers: [AppController],
   providers: [AppService, WinstonLoggerService, HelperService],

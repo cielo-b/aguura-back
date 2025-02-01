@@ -50,6 +50,8 @@ const bootstrap = async () => {
     .setDescription('Backend APIs documentation for Aguura')
     .setVersion('1.0.0')
     .addTag('Users', "User's related operations.")
+    .addTag("Super admin", "Operations related to super admin")
+    .addTag("App", "Welcome")
     .addBearerAuth({
       type: 'http',
       scheme: 'bearer',
