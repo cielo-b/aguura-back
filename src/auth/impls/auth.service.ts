@@ -48,10 +48,12 @@ export class AuthService implements AuthAbstractService {
 
       // TODO: finish the implementation of this verification
 
-      // if (!user.isVerified)
-      //   throw new UnauthorizedException(
-      //     `Verification OTP sent to ${user.phoneNumber} or ${user.email}, verify to continue or request another OTP.`,
-      //   );
+      if (!user.isVerified)
+        throw new UnauthorizedException(
+          `Verification OTP sent to ${user.phoneNumber} or ${user.email}, verify to continue or request another OTP.`,
+        );
+
+      console.log(user)
 
       // password validation
       if (
@@ -113,6 +115,8 @@ export class AuthService implements AuthAbstractService {
       otp.otp = await this.utilsService.generateOtp();
       otp.isUsed = false;
 
+      console.log(otp)
+
       // TODO: send the otp according to what given either phone or email
 
       user.otps.push(otp);
@@ -173,6 +177,8 @@ export class AuthService implements AuthAbstractService {
           'Invalid OTP provided, request another one to reset your password.',
         );
 
+        console.log(otp)
+
       // validate the otp
       if (!(await this.utilsService.verifyOtp(dto.otp, otp.otp)))
         throw new UnauthorizedException(
@@ -193,7 +199,7 @@ export class AuthService implements AuthAbstractService {
         await this.transactionService.commitTransaction()
       return {
         status: 'success',
-        message: 'OTP verified successfully, you can not reset the password.',
+        message: 'OTP verified successfully, you can now reset the password.',
         success: true,
       };
     } catch (error) {

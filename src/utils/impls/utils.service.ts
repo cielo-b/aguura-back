@@ -81,6 +81,7 @@ export class UtilsService implements UtilsAbstractService {
     password: string,
     dbPassword: string,
   ): Promise<boolean> {
+    console.log(await bcrypt.compare(password, dbPassword))
     return await bcrypt.compare(password, dbPassword);
   }
 

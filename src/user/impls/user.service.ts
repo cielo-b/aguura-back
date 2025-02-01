@@ -83,7 +83,6 @@ export class UserService implements UserAbstractService {
       // TODO: before saving the user, send the OTP on the email and phone number
       console.log(otp);
 
-      // 9708
 
       user.otps.push(otp);
       await this.transactionService
