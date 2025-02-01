@@ -20,6 +20,7 @@ import { SuperadminModule } from './superadmin/superadmin.module';
 import { JwtModule } from './jwt/jwt.module';
 import { Otp } from './models/otp.entity';
 import { TransactionModule } from './transaction/transaction.module';
+import { TwilioModule } from './twilio/twilio.module';
 
 @Module({
   imports: [
@@ -44,6 +45,7 @@ import { TransactionModule } from './transaction/transaction.module';
     SuperadminModule,
     JwtModule,
     TransactionModule,
+    TwilioModule,
   ],
   controllers: [AppController],
   providers: [AppService, WinstonLoggerService, HelperService],
