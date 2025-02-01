@@ -6,10 +6,11 @@ import { User } from 'src/models/user.entity';
 import { UtilsService } from 'src/utils/impls/utils.service';
 import { HelperService } from 'src/helpers/impls/helper.service';
 import { Role } from 'src/models/role.entity';
+import { TransactionService } from 'src/transaction/transaction.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([User, Role])],
   controllers: [SuperadminController],
-  providers: [SuperadminService, UtilsService, HelperService],
+  providers: [SuperadminService, UtilsService, HelperService, TransactionService],
 })
 export class SuperadminModule {}

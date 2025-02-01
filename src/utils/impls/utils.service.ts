@@ -5,26 +5,50 @@ import { User } from 'src/models/user.entity';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { ECreationAction } from 'src/common/enums/creation-actions.enum';
+import { TransactionService } from 'src/transaction/transaction.service';
 
 @Injectable()
 export class UtilsService implements UtilsAbstractService {
   constructor(
     @InjectRepository(User) private readonly userRepository: Repository<User>,
+    private readonly transactionService: TransactionService,
   ) {}
 
   isEmailUnique = async (email: string): Promise<boolean> => {
-    const user: User = await this.userRepository.findOne({ where: { email } });
-    if (user) return false;
-    return true;
+    await this.transactionService.startTransaction();
+    try {
+      const user: User = await this.transactionService
+        .getRepository(this.userRepository)
+        .findOne({ where: { email } });
+      if (user) return false;
+      this.transactionService.commitTransaction();
+      return true;
+    } catch (error) {
+      await this.transactionService.rollbackTransaction();
+      throw error;
+    } finally {
+      await this.transactionService.releaseTransaction();
+    }
   };
 
   isPhoneNumberUnique = async (phone: string): Promise<boolean> => {
-    const user: User = await this.userRepository.findOne({
-      where: { phoneNumber: phone },
-    });
+    await this.transactionService.startTransaction();
+    try {
+      const user: User = await this.transactionService
+        .getRepository(this.userRepository)
+        .findOne({
+          where: { phoneNumber: phone },
+        });
 
-    if (user) return false;
-    return true;
+      if (user) return false;
+      await this.transactionService.commitTransaction();
+      return true;
+    } catch (error) {
+      await this.transactionService.rollbackTransaction();
+      throw error;
+    } finally {
+      await this.transactionService.releaseTransaction();
+    }
   };
 
   async validatePasswordWithConfirmPassword(
@@ -71,17 +95,29 @@ export class UtilsService implements UtilsAbstractService {
     email?: string,
     phone?: string,
   ): Promise<User | null> {
-    return await this.userRepository.findOne({
-      where: [{ email }, { phoneNumber: phone }],
-      relations: ['role', 'otps'],
-    });
+    await this.transactionService.startTransaction();
+    try {
+      const user = await this.transactionService
+        .getRepository(this.userRepository)
+        .findOne({
+          where: [{ email }, { phoneNumber: phone }],
+          relations: ['role', 'otps'],
+        });
+      await this.transactionService.commitTransaction();
+      return user;
+    } catch (error) {
+      await this.transactionService.rollbackTransaction();
+      throw error;
+    } finally {
+      await this.transactionService.releaseTransaction();
+    }
   }
 
   async isPasswordValid(
     password: string,
     dbPassword: string,
   ): Promise<boolean> {
-    console.log(await bcrypt.compare(password, dbPassword))
+    console.log(await bcrypt.compare(password, dbPassword));
     return await bcrypt.compare(password, dbPassword);
   }
 

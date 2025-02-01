@@ -14,6 +14,7 @@ import { ECreationAction } from 'src/common/enums/creation-actions.enum';
 import { ERole } from 'src/roles/constants/role.enum';
 import { HelperService } from 'src/helpers/impls/helper.service';
 import { Role } from 'src/models/role.entity';
+import { TransactionService } from 'src/transaction/transaction.service';
 
 @Injectable()
 export class SuperadminService implements SuperadminAbstractService {
@@ -23,11 +24,15 @@ export class SuperadminService implements SuperadminAbstractService {
 
     private readonly utilsService: UtilsService,
     private readonly helperService: HelperService,
+    private readonly transactionService: TransactionService
   ) {}
 
   createSuperAdmin = async (dto: RegisterSuperAdminDto): Promise<IResponse> => {
-    // validate super admin key
-    if (
+    await this.transactionService.startTransaction()
+    try{
+
+      // validate super admin key
+      if (
       !(await this.utilsService.validateKey(
         dto.key,
         ECreationAction.CREATE_SUPER_ADMIN,
@@ -38,7 +43,7 @@ export class SuperadminService implements SuperadminAbstractService {
       );
 
     // only one super admin allowed
-    const eS: User[] = await this.userRepository.find({
+    const eS: User[] = await this.transactionService.getRepository(this.userRepository).find({
       where: { role: { name: ERole.SUPER_ADMIN } },
     });
     if (eS.length > 1)
@@ -51,7 +56,7 @@ export class SuperadminService implements SuperadminAbstractService {
     // check the phone number
     if (!(await this.utilsService.isPhoneNumberUnique(dto.phone)))
       throw new BadRequestException(`Phone number ${dto.phone} already taken.`);
-
+    
     // check the passwords
     if (
       !(await this.utilsService.validatePasswordWithConfirmPassword(
@@ -61,33 +66,41 @@ export class SuperadminService implements SuperadminAbstractService {
     )
       throw new BadRequestException('Password must be confirmed.');
 
-    // create the user
+      // create the user
     const user: User = await this.helperService.createUser(dto);
-
+    
     // assign the role and permissions
-    const userRole = await this.roleRepository.findOne({
+    const userRole = await this.transactionService.getRepository(this.roleRepository).findOne({
       where: { name: ERole.SUPER_ADMIN },
     });
-
+    
     if (!userRole) {
       throw new Error('Role SUPER ADMIN not found');
     }
 
     user.role = userRole;
-    await this.userRepository.save(user);
-
+    await this.transactionService.getRepository(this.userRepository).save(user);
+    
     const populatedUser: User = await this.userRepository
-      .createQueryBuilder('user')
+    .createQueryBuilder('user')
       .leftJoinAndSelect('user.role', 'role')
       .leftJoinAndSelect('role.permissions', 'permissions')
       .where('user.id = :id', { id: user.id })
       .getOne();
 
-    return {
+      await this.transactionService.commitTransaction()
+
+      return {
       message: 'Super admin registered successfully',
       data: populatedUser,
       status: 201,
       success: true,
     };
+  }catch(error){
+    await this.transactionService.rollbackTransaction()
+    throw error
+  }finally{
+    await this.transactionService.releaseTransaction()
+  }
   };
 }
