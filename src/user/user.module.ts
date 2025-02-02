@@ -10,10 +10,11 @@ import { Role } from 'src/models/role.entity';
 import { Permission } from 'src/models/permission.entity';
 import { Otp } from 'src/models/otp.entity';
 import { TransactionService } from 'src/transaction/transaction.service';
+import { TwilioService } from 'src/twilio/twilio.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([User, Role, Permission, Otp])],
   controllers: [UserController],
-  providers: [UserService, WinstonLoggerService, UtilsService, HelperService, TransactionService],
+  providers: [UserService, WinstonLoggerService, UtilsService, HelperService, TransactionService, TwilioService],
 })
 export class UserModule {}

@@ -29,6 +29,7 @@
     "@nestjs/swagger": "^11.0.3",
     "@nestjs/typeorm": "^11.0.0",
     "@types/cache-manager-redis-store": "^2.0.4",
+    "@types/nodemailer": "^6.4.17",
     "axios": "^1.7.9",
     "bcrypt": "^5.1.1",
     "bcryptjs": "^2.4.3",

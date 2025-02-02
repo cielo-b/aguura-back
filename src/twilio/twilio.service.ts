@@ -31,7 +31,7 @@ export class TwilioService {
       this.logger.log(`SMS sent successfully: ${response.sid}`);
     } catch (error) {
       this.logger.error(`Failed to send SMS: ${error.message}`);
-      throw new Error('Failed to send SMS');
+      throw error;
     }
   }
 }

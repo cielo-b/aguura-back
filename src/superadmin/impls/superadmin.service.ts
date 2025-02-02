@@ -24,83 +24,77 @@ export class SuperadminService implements SuperadminAbstractService {
 
     private readonly utilsService: UtilsService,
     private readonly helperService: HelperService,
-    private readonly transactionService: TransactionService
+    private readonly transactionService: TransactionService,
   ) {}
 
   createSuperAdmin = async (dto: RegisterSuperAdminDto): Promise<IResponse> => {
-    await this.transactionService.startTransaction()
-    try{
-
+    const transaction = await this.transactionService.startTransaction();
       // validate super admin key
       if (
-      !(await this.utilsService.validateKey(
-        dto.key,
-        ECreationAction.CREATE_SUPER_ADMIN,
-      ))
-    )
-      throw new ForbiddenException(
-        `Invalid SUPER ADMIN CREATION KEY provided.`,
-      );
+        !(await this.utilsService.validateKey(
+          dto.key,
+          ECreationAction.CREATE_SUPER_ADMIN,
+        ))
+      )
+        throw new ForbiddenException(
+          `Invalid SUPER ADMIN CREATION KEY provided.`,
+        );
 
-    // only one super admin allowed
-    const eS: User[] = await this.transactionService.getRepository(this.userRepository).find({
-      where: { role: { name: ERole.SUPER_ADMIN } },
-    });
-    if (eS.length > 1)
-      throw new ForbiddenException(`Only one super admin allowed.`);
+      // only one super admin allowed
+      const eS: User[] = await transaction.userRepository.find({
+        where: { role: { name: ERole.SUPER_ADMIN } },
+      });
+      if (eS.length > 1)
+        throw new ForbiddenException(`Only one super admin allowed.`);
 
-    // validate the email
-    if (!(await this.utilsService.isEmailUnique(dto.email)))
-      throw new BadRequestException(`Email ${dto.email} already taken.`);
+      // validate the email
+      if (!(await this.utilsService.isEmailUnique(dto.email)))
+        throw new BadRequestException(`Email ${dto.email} already taken.`);
 
-    // check the phone number
-    if (!(await this.utilsService.isPhoneNumberUnique(dto.phone)))
-      throw new BadRequestException(`Phone number ${dto.phone} already taken.`);
-    
-    // check the passwords
-    if (
-      !(await this.utilsService.validatePasswordWithConfirmPassword(
-        dto.password,
-        dto.confirmPassword,
-      ))
-    )
-      throw new BadRequestException('Password must be confirmed.');
+      // check the phone number
+      if (!(await this.utilsService.isPhoneNumberUnique(dto.phone)))
+        throw new BadRequestException(
+          `Phone number ${dto.phone} already taken.`,
+        );
+
+      // check the passwords
+      if (
+        !(await this.utilsService.validatePasswordWithConfirmPassword(
+          dto.password,
+          dto.confirmPassword,
+        ))
+      )
+        throw new BadRequestException('Password must be confirmed.');
 
       // create the user
-    const user: User = await this.helperService.createUser(dto);
-    
-    // assign the role and permissions
-    const userRole = await this.transactionService.getRepository(this.roleRepository).findOne({
-      where: { name: ERole.SUPER_ADMIN },
-    });
-    
-    if (!userRole) {
-      throw new Error('Role SUPER ADMIN not found');
-    }
+      const user: User = await this.helperService.createUser(dto);
 
-    user.role = userRole;
-    await this.transactionService.getRepository(this.userRepository).save(user);
-    
-    const populatedUser: User = await this.userRepository
-    .createQueryBuilder('user')
-      .leftJoinAndSelect('user.role', 'role')
-      .leftJoinAndSelect('role.permissions', 'permissions')
-      .where('user.id = :id', { id: user.id })
-      .getOne();
+      // assign the role and permissions
+      const userRole = await transaction.roleRepository.findOne({
+        where: { name: ERole.SUPER_ADMIN },
+      });
 
-      await this.transactionService.commitTransaction()
+      if (!userRole) {
+        throw new Error('Role SUPER ADMIN not found');
+      }
+
+      user.role = userRole;
+      await transaction.userRepository.save(user);
+
+      const populatedUser: User = await this.userRepository
+        .createQueryBuilder('user')
+        .leftJoinAndSelect('user.role', 'role')
+        .leftJoinAndSelect('role.permissions', 'permissions')
+        .where('user.id = :id', { id: user.id })
+        .getOne();
+
+      await this.transactionService.commitTransaction();
 
       return {
-      message: 'Super admin registered successfully',
-      data: populatedUser,
-      status: 201,
-      success: true,
-    };
-  }catch(error){
-    await this.transactionService.rollbackTransaction()
-    throw error
-  }finally{
-    await this.transactionService.releaseTransaction()
-  }
+        message: 'Super admin registered successfully',
+        data: populatedUser,
+        status: 201,
+        success: true,
+      };
   };
 }

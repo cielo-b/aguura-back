@@ -1,51 +1,42 @@
 import { Injectable, OnModuleDestroy } from '@nestjs/common';
-import { Repository, EntityManager, Connection, QueryRunner } from 'typeorm';
-import { InjectRepository } from '@nestjs/typeorm';
+import { DataSource, QueryRunner } from 'typeorm';
+import { TransactionContext } from './context/transaction.context';
 
 @Injectable()
 export class TransactionService implements OnModuleDestroy {
   private queryRunner: QueryRunner;
 
-  constructor(private readonly connection: Connection) {}
+  constructor(private readonly dataSource: DataSource) {}
 
-  // Start a transaction with a dynamic query runner
-  async startTransaction() {
-    this.queryRunner = this.connection.createQueryRunner();
+  // Start transaction and return TransactionContext
+  async startTransaction(): Promise<TransactionContext> {
+    this.queryRunner = this.dataSource.createQueryRunner();
     await this.queryRunner.startTransaction();
+    return new TransactionContext(this.queryRunner);
   }
 
-  // Commit the transaction
+  // Commit transaction
   async commitTransaction() {
-    if (!this.queryRunner) {
+    if (!this.queryRunner || this.queryRunner.isReleased) {
       throw new Error('No transaction is active');
     }
     await this.queryRunner.commitTransaction();
   }
 
-  // Rollback the transaction
+  // Rollback transaction
   async rollbackTransaction() {
-    if (!this.queryRunner) {
-      throw new Error('No transaction is active');
-    }
+    if (!this.queryRunner) throw new Error('No transaction is active');
     await this.queryRunner.rollbackTransaction();
   }
 
-  // Release the query runner
+  // Release the transaction
   async releaseTransaction() {
     if (this.queryRunner) {
       await this.queryRunner.release();
     }
   }
 
-  // Get query runner for a specific repository
-  getRepository<T>(repository: Repository<T>): Repository<T> {
-    if (!this.queryRunner) {
-      throw new Error('No transaction is active');
-    }
-    return this.queryRunner.manager.getRepository(repository.target);
-  }
-
-  // On module destroy, ensure resources are cleaned up
+  // Clean up resources on module destroy
   onModuleDestroy() {
     this.releaseTransaction();
   }

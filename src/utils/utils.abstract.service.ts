@@ -20,6 +20,7 @@ export abstract class UtilsAbstractService {
   abstract findOneByEmailOrPhone(
     email: string,
     phone: string,
+    transaction: any,
   ): Promise<User | null>;
 
   abstract isPasswordValid(
@@ -29,4 +30,10 @@ export abstract class UtilsAbstractService {
 
   abstract generateOtp(): Promise<string>;
   abstract verifyOtp(otp: string, dbOtp: string): Promise<boolean>;
+  abstract sendEmail(email: string, html: any, subject: string): Promise<void>;
+  abstract VerifyAccountTemplate(
+    email: string,
+    otp: string,
+    subject: string,
+  ): Promise<void>;
 }

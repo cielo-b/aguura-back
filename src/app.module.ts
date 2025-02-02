@@ -34,7 +34,7 @@ import { TwilioModule } from './twilio/twilio.module';
       database: process.env.DB_NAME,
       entities: [User, Stock, Role, Permission, Otp],
       synchronize: true,
-      logging: true,
+      // logging: true,
     }),
     AuthModule,
     RolesModule,

@@ -6,6 +6,7 @@ import { CorsOptions } from '@nestjs/common/interfaces/external/cors-options.int
 import { AllExceptionsFilter } from './common/filters/all-exception.filter';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
+import { TransactionService } from './transaction/transaction.service';
 
 const bootstrap = async () => {
   /**
@@ -34,7 +35,8 @@ const bootstrap = async () => {
   /**
    * Exception filter
    */
-  app.useGlobalFilters(new AllExceptionsFilter());
+  const transactionService = app.get(TransactionService);
+  app.useGlobalFilters(new AllExceptionsFilter(transactionService));
 
   /**
    * Prefix
@@ -50,8 +52,8 @@ const bootstrap = async () => {
     .setDescription('Backend APIs documentation for Aguura')
     .setVersion('1.0.0')
     .addTag('Users', "User's related operations.")
-    .addTag("Super admin", "Operations related to super admin")
-    .addTag("App", "Welcome")
+    .addTag('Super admin', 'Operations related to super admin')
+    .addTag('App', 'Welcome')
     .addBearerAuth({
       type: 'http',
       scheme: 'bearer',

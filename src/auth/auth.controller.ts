@@ -1,12 +1,13 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Param, Post, Put } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ControllerResponse } from 'src/payload/controller-response';
-import { RegisterUserDto } from 'src/user/dto/register-user.dto';
 import { LoginDto } from './dto/login.dto';
 import { AuthService } from './impls/auth.service';
 import { ForgotPassDto } from './dto/forgot-pass.dto';
 import { VerifyForgotPassDto } from './dto/verify-forgot-pass-otp.dto';
 import { VerifyAccountDto } from './dto/verify-account.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
+import { ResendOtpDto } from './dto/resend-otp.dto';
 
 @ApiTags('Authentication')
 @Controller('auth')
@@ -77,6 +78,54 @@ export class AuthController {
   })
   async verifyAccount(@Body() dto: VerifyAccountDto) {
     const result = await this.authService.verifyAccount(dto);
+    return new ControllerResponse(true, result);
+  }
+
+  @Put('reset-password')
+  @ApiOperation({ summary: 'Reset password' })
+  @ApiResponse({
+    status: 200,
+    description: 'Password reset successfully, login to continue.',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Validation error or OTP invalid/expired',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'User not found with provided email/phone',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Invalid or expired OTP',
+  })
+  async resetPassword(@Body() dto: ResetPasswordDto) {
+    const result = await this.authService.resetPassword(dto);
+    return new ControllerResponse(true, result);
+  }
+
+  @Post('resend-otp')
+  @ApiOperation({ summary: 'Resend OTP' })
+  @ApiResponse({
+    status: 200,
+    description: 'OTP resend successfully, check email or phone.',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Validation error or OTP invalid/expired',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'User not found with provided email/phone',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Invalid or expired OTP',
+  })
+  async resendOtp(
+    @Body() dto: ResendOtpDto,
+  ) {
+    const result = await this.authService.resendOtp(dto);
     return new ControllerResponse(true, result);
   }
 }

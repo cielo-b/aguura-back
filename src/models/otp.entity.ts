@@ -35,6 +35,9 @@ export class Otp {
   @Column({ type: 'boolean', default: false })
   isUsed: boolean;
 
+  @Column({ type: 'boolean', default: false })
+  validatedOtp: boolean;
+
   @BeforeInsert()
   async hashOtp() {
     if (this.otp) {

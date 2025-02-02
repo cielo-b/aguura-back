@@ -1,10 +1,18 @@
-import { Catch, ExceptionFilter, ArgumentsHost, HttpException } from '@nestjs/common';
+import {
+  Catch,
+  ExceptionFilter,
+  ArgumentsHost,
+  HttpException,
+} from '@nestjs/common';
 import { Response } from 'express';
+import { TransactionService } from 'src/transaction/transaction.service';
 
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
-  catch(exception: any, host: ArgumentsHost) {
-    console.error('Exception caught:', exception); // Log full exception for debugging
+  constructor(private readonly transactionService: TransactionService) {}
+
+  async catch(exception: any, host: ArgumentsHost) {
+    console.error('Exception caught:', exception);
 
     const context = host.switchToHttp();
     const response = context.getResponse<Response>();
@@ -22,8 +30,18 @@ export class AllExceptionsFilter implements ExceptionFilter {
           : exception.message
         : 'Oops! Something went wrong on the server.';
 
-    // Ensure message is always a string
-    const formattedMessage = Array.isArray(message) ? message.join(', ') : message;
+    const formattedMessage = Array.isArray(message)
+      ? message.join(', ')
+      : message;
+
+    // 🔴 Rollback Transaction If Any is Active
+    try {
+      await this.transactionService.rollbackTransaction();
+    } catch (err) {
+      console.error('Transaction rollback failed:', err);
+    } finally {
+      await this.transactionService.releaseTransaction();
+    }
 
     response.status(status).json({
       statusCode: status,
