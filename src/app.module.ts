@@ -27,13 +27,31 @@ import { TwilioModule } from './twilio/twilio.module';
     ConfigModule.forRoot({ isGlobal: true }),
     TypeOrmModule.forRoot({
       type: 'postgres',
-      host: process.env.DB_HOST || 'localhost',
-      port: Number(process.env.DB_PORT) || 5432,
-      username: process.env.DB_USER,
-      password: process.env.DB_PASSWORD,
-      database: process.env.DB_NAME,
+      host:
+        process.env.NODE_ENV == 'development'
+          ? process.env.DB_HOST || 'localhost'
+          : process.env.DB_HOST_PROD,
+      port:
+        process.env.NODE_ENV == 'development'
+          ? Number(process.env.DB_PORT)
+          : Number(process.env.DB_PORT_PROD),
+      username:
+        process.env.NODE_ENV == 'development'
+          ? process.env.DB_USER
+          : process.env.DB_USER_PROD,
+      password:
+        process.env.NODE_ENV == 'development'
+          ? process.env.DB_PASSWORD
+          : process.env.DB_PASSWORD_PROD,
+      database:
+        process.env.NODE_ENV == 'development'
+          ? process.env.DB_NAME
+          : process.env.DB_NAME_PROD,
       entities: [User, Stock, Role, Permission, Otp],
-      synchronize: true,
+      synchronize: process.env.NODE_ENV == 'development' ? true : false,
+      ssl: {
+        rejectUnauthorized: false,
+      },
       // logging: true,
     }),
     AuthModule,
