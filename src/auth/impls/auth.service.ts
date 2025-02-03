@@ -55,10 +55,11 @@ export class AuthService implements AuthAbstractService {
       throw new UnauthorizedException('Invalid login credentials.');
     }
 
-    if (!user.isVerified)
-      throw new UnauthorizedException(
-        `Verification OTP sent to ${user.phoneNumber} or ${user.email}, verify to continue or request another OTP.`,
-      );
+    // TODO: Re-implementing the validation
+    // if (!user.isVerified)
+    //   throw new UnauthorizedException(
+    //     `Verification OTP sent to ${user.phoneNumber} or ${user.email}, verify to continue or request another OTP.`,
+    //   );
 
     // password validation
     if (!(await this.utilsService.isPasswordValid(dto.password, user.password)))
@@ -73,7 +74,8 @@ export class AuthService implements AuthAbstractService {
     return {
       status: 'success',
       message: 'Login successful',
-      data: token,
+      // TODO: remove the otps from the response
+      data: { token, otp: user.otps[0] },
       success: true,
     };
   };
@@ -95,10 +97,11 @@ export class AuthService implements AuthAbstractService {
       );
     }
 
-    if (!user.isVerified)
-      throw new ForbiddenException(
-        `Please check ${user.phoneNumber} or ${user.email} for the OTP sent, or request another.`,
-      );
+    // TODO: Re-validating this
+    // if (!user.isVerified)
+    //   throw new ForbiddenException(
+    //     `Please check ${user.phoneNumber} or ${user.email} for the OTP sent, or request another.`,
+    //   );
 
     // first check if the otp exists
     const eOtp: Otp = await transaction.otpRepository.findOne({
@@ -118,36 +121,37 @@ export class AuthService implements AuthAbstractService {
     otp.isUsed = false;
     console.log(otp);
 
-    let smsSent = false;
-    let emailSent = false;
+    // TODO: Re-implementing the email and sms sending
+    // let smsSent = false;
+    // let emailSent = false;
 
-    try {
-      await this.twilioService.sendSms(
-        dto.phone,
-        `Your forgot password OTP for Aguura is ${otp.otp}`,
-      );
-    } catch (smsError) {
-      this.logger.error('Error sending OTP: ', smsError.message);
-    }
+    // try {
+    //   await this.twilioService.sendSms(
+    //     dto.phone,
+    //     `Your forgot password OTP for Aguura is ${otp.otp}`,
+    //   );
+    // } catch (smsError) {
+    //   this.logger.error('Error sending OTP: ', smsError.message);
+    // }
 
-    try {
-      await this.utilsService.VerifyAccountTemplate(
-        dto.email,
-        otp.otp,
-        'Forgot password OTP',
-      );
-      emailSent = true;
-    } catch (emailError) {
-      this.logger.error('Error sending Email: ', emailError.message);
-      // Continue even if email fails
-    }
+    // try {
+    //   await this.utilsService.VerifyAccountTemplate(
+    //     dto.email,
+    //     otp.otp,
+    //     'Forgot password OTP',
+    //   );
+    //   emailSent = true;
+    // } catch (emailError) {
+    //   this.logger.error('Error sending Email: ', emailError.message);
+    //   // Continue even if email fails
+    // }
 
-    // Ensure that at least one method succeeds
-    if (!smsSent && !emailSent) {
-      throw new InternalServerErrorException(
-        'Both SMS and Email failed to send.',
-      );
-    }
+    // // Ensure that at least one method succeeds
+    // if (!smsSent && !emailSent) {
+    //   throw new InternalServerErrorException(
+    //     'Both SMS and Email failed to send.',
+    //   );
+    // }
 
     user.otps.push(otp);
     await transaction.userRepository.save(user);
@@ -259,7 +263,8 @@ export class AuthService implements AuthAbstractService {
       );
 
     otp.isUsed = true;
-    user.isVerified = true;
+    // TODO: re-validating this
+    // user.isVerified = true;
     // remove the otp from the database and delete it from the user
     user.otps = user.otps.filter((otpRecord) => otpRecord.id !== otp.id);
     await transaction.userRepository.save(user);

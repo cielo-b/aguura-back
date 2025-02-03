@@ -79,36 +79,37 @@ export class UserService implements UserAbstractService {
     otp.action = EOtpAction.REGISTRATION;
     otp.isUsed = false;
 
-    let smsSent = false;
-    let emailSent = false;
+    // TODO: Re-implement the email and sms sending
+    // let smsSent = false;
+    // let emailSent = false;
 
-    try {
-      await this.twilioService.sendSms(
-        dto.phone,
-        `Your account verification OTP for Aguura is ${otp.otp}`,
-      );
-    } catch (smsError) {
-      this.logger.error('Error sending OTP: ', smsError.message);
-    }
+    // try {
+    //   await this.twilioService.sendSms(
+    //     dto.phone,
+    //     `Your account verification OTP for Aguura is ${otp.otp}`,
+    //   );
+    // } catch (smsError) {
+    //   this.logger.error('Error sending OTP: ', smsError.message);
+    // }
 
-    try {
-      await this.utilsService.VerifyAccountTemplate(
-        dto.email,
-        otp.otp,
-        'Account Verification OTP',
-      );
-      emailSent = true;
-    } catch (emailError) {
-      this.logger.error('Error sending Email: ', emailError.message);
-      // Continue even if email fails
-    }
+    // try {
+    //   await this.utilsService.VerifyAccountTemplate(
+    //     dto.email,
+    //     otp.otp,
+    //     'Account Verification OTP',
+    //   );
+    //   emailSent = true;
+    // } catch (emailError) {
+    //   this.logger.error('Error sending Email: ', emailError.message);
+    //   // Continue even if email fails
+    // }
 
-    // Ensure that at least one method succeeds
-    if (!smsSent && !emailSent) {
-      throw new InternalServerErrorException(
-        'Both SMS and Email failed to send.',
-      );
-    }
+    // // Ensure that at least one method succeeds
+    // if (!smsSent && !emailSent) {
+    //   throw new InternalServerErrorException(
+    //     'Both SMS and Email failed to send.',
+    //   );
+    // }
 
     user.otps.push(otp);
     await transaction.userRepository.save(user);

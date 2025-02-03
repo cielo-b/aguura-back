@@ -10,6 +10,7 @@ import {
 import { User } from './user.entity';
 import { EOtpAction } from 'src/common/enums/otp-actions.enum';
 import * as bcrypt from 'bcryptjs';
+import { Exclude } from 'class-transformer';
 
 @Entity('otp')
 export class Otp {
@@ -18,6 +19,7 @@ export class Otp {
 
   @ManyToOne(() => User, (user) => user.otps, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'userId' })
+  @Exclude()
   user: User;
 
   @Column({

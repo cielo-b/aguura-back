@@ -20,9 +20,9 @@ export class UtilsService implements UtilsAbstractService {
     private readonly transactionService: TransactionService,
   ) {
     this.smtpTransport = nodemailer.createTransport({
-      service: 'smtp.gmail.com',
-      auth: { user: process.env.SMTP_EMAIL, pass: process.env.SMTP_PASSWORD },
-      host: 'smtp.gmail.com',
+      service: 'smtp.zoho.com',
+      auth: { user: process.env.SMTP_EMAIL, pass: "process.env.SMTP_PASSWORD" },
+      host: 'smtp.zoho.com',
       secure: true,
       pool: true,
       maxConnections: 5,
