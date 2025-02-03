@@ -9,8 +9,14 @@ import { redisStore } from 'cache-manager-redis-store';
       ttl: 0,
       isGlobal: true,
       store: redisStore,
-      host: 'localhost',
-      port: 6379,
+      host:
+        process.env.NODE_ENV == 'development'
+          ? process.env.REDIS_HOST
+          : process.env.REDIS_HOST_PROD,
+      port:
+        process.env.NODE_ENV == 'development'
+          ? Number(process.env.REDIS_POR)
+          : Number(process.env.REDIS_PORT_PROD),
     }),
   ],
   providers: [RedisService],
