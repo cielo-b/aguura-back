@@ -5,10 +5,11 @@ import { RateLimitMiddleware } from './common/middlewares/rate-limiter.middlewar
 import { CorsOptions } from '@nestjs/common/interfaces/external/cors-options.interface';
 import { AllExceptionsFilter } from './common/filters/all-exception.filter';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { ValidationPipe } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
 import { TransactionService } from './transaction/transaction.service';
 
 const bootstrap = async () => {
+  const logger = new Logger('Aguura System API');
   /**
    * DOTENV
    */
@@ -83,5 +84,6 @@ const bootstrap = async () => {
   );
 
   await app.listen(process.env.PORT ?? 3000);
+  logger.log(`Server listening port ${process.env.PORT ?? 3000}...`);
 };
 bootstrap();
